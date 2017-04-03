@@ -1,4 +1,4 @@
-var renderer = new THREE.WebGLRenderer();
+	var renderer = new THREE.WebGLRenderer();
 var objects = [];
 /* Scene Dimensions (in meters: at z = 0) */
 var mySceneTLX;        /* Top Left corner X coordinate */
@@ -10,7 +10,7 @@ var mySceneH;          /* Scene Height */
 var myCenterX;         /* Scene Center X coordinate */
 var myCenterY;         /* Scene Center Y coordinate */
 
-var Zdefault = -20;
+var Zdefault = 20;
 var Zmin = -100;
 var Zmax = 100;
 var Zstep = 1;
@@ -27,6 +27,7 @@ var FglassText;
 var rubberball;
 var plane;
 var cone;
+var cylinder;
 var cylinder_1;
 var cone1;
 var glass;
@@ -250,20 +251,21 @@ function resetExperiment() {
 	fglass.position.set(0, 40, -20);
 	bottle.position.set(0, 40, -20);
 
-	rubberball.visible = false;
+	/*rubberball.visible = false;
 	plane.visible = false;
 	cylinder_1.visible = false;
 	glass.visible = false;
 	wood.visible = false;
 	fglass.visible = false;
-	bottle.visible = false;
-
-
-
-	if (!question) {
-		document.getElementById("answer").innerHTML = "";
+	bottle.visible = false;*/
+	for (var i = 0; i < 12; i++) {
+		objects[i].visible = false;
 	}
-	PIErender();
+
+
+
+	screen1.visible = true;
+	cylinder.visible = true;
 
 
 	PIEchangeDisplayCommand("Hide " + GlassText, "Show " + GlassText, handleGlass);
@@ -289,6 +291,14 @@ function resetExperiment() {
 
 	PIEchangeDisplayCommand("Hide " + BottleText, "Show " + BottleText, handleBottle);
 	PIEchangeInputCommand("Hide " + BottleText, "Show " + BottleText, handleBottle);
+
+	if(!question){
+		var element = document.getElementById("infoo");
+		element.outerHTML = "";
+		delete element;
+		question = 1;
+	}
+	
 }
 function loadExperimentElements() {
 	
@@ -324,7 +334,7 @@ function loadExperimentElements() {
 
 	var geometry = new THREE.CylinderGeometry( 5, 5, 70, 32 );
 	var material = new THREE.MeshBasicMaterial( {color: 0x66CCCC} );
-	var cylinder = new THREE.Mesh( geometry, material );
+	cylinder = new THREE.Mesh( geometry, material );
 	cylinder.position.set( 0, -30, 0);
 	PIEaddElement(cylinder);
 
@@ -401,7 +411,7 @@ function loadExperimentElements() {
 	// Screen
 	var geometry = new THREE.PlaneGeometry( 5000, 5000, 32 );
 	var material = new THREE.MeshBasicMaterial( {
-		color: 0xFF3333, 
+		color: 0x003399, 
 		side: THREE.DoubleSide, 
 		opacity: 1,
 		transparent: true,
@@ -467,6 +477,30 @@ function loadExperimentElements() {
     objects.push(fglass);
     PIEdragElement(fglass);
     PIEaddElement(fglass);
+
+    // Some more objects for questions
+    var Qobjects;
+    for (var i = 1; i <= 5; i++) {
+    	var imageLocation = "img/" + i + ".png";
+    	var texture = new THREE.TextureLoader().load( imageLocation );
+		texture.wrapS = THREE.ClampToEdgeWrapping
+		texture.wrapT = THREE.ClampToEdgeWrapping
+		var img = new THREE.MeshBasicMaterial({
+			color: 0x99FFFF,
+			side: THREE.DoubleSide, 
+	        map: texture,
+	        opacity: 1,
+			transparent: true,
+	    });
+	    Qobjects = new THREE.Mesh(new THREE.PlaneGeometry(40, 40), img);
+	    Qobjects.scale.x = -1;
+	    Qobjects.position.set(0,0,-100);
+	    Qobjects.overflow = true;
+	    Qobjects.visible = false;
+	    objects.push(Qobjects);
+	    PIEdragElement(Qobjects);
+	    PIEaddElement(Qobjects);
+    }
 
 
 
@@ -551,9 +585,9 @@ function insertText () {
 		ans.setAttributeNode(att);
 	}
 	qcount++;
-	if (qcount > 6){
+	if (qcount > 11){
 		qcount = 0;
-	}; // rubberball, paper, pencil, glass slab, wood, bottle, frosted glass
+	}; // rubberball, paper, pencil, glass slab, wood, bottle, frosted glass, specs, book, coin, cloth, umbrella
 	var randomNo = qcount;
 	objects[randomNo].visible = true;
 	objects[randomNo].position.set(-50, 40, -20);
@@ -564,7 +598,7 @@ function insertText () {
 	}
 
 
-	if (randomNo == 0 || randomNo == 2 || randomNo == 4) {
+	if (randomNo == 0 || randomNo == 2 || randomNo == 4 || randomNo == 8 || randomNo == 9 || randomNo == 10 || randomNo == 11) {
 		buttonsO.setAttribute("onclick", "ans_right()");
 		buttonsTL.setAttribute("onclick", "ans_wrong()");
 		buttonsT.setAttribute("onclick", "ans_wrong()");
@@ -589,7 +623,7 @@ function insertText () {
 function ans_wrong() {
 	document.getElementById("answer").innerHTML = "";
 	var colorcode = document.createAttribute("style");
-	colorcode.value = "color: #B60000;";
+	colorcode.value = "color: #630000;";
 	document.getElementById("answer").setAttributeNode(colorcode); 
 	var textnode = document.createTextNode("Wrong Answer, Try Again!");
 	ans.appendChild(textnode);
@@ -598,7 +632,7 @@ function ans_right() {
 	document.getElementById("answer").innerHTML = "";
 
 	var colorcode = document.createAttribute("style");
-	colorcode.value = "color: #106800;";
+	colorcode.value = "color: #113E00;";
 	document.getElementById("answer").setAttributeNode(colorcode); 
 	var textnode = document.createTextNode("Congratulations, thats right answer!");
 	ans.appendChild(textnode);
